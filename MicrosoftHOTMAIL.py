@@ -3,11 +3,11 @@ import pandas as pd
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-# Configurações do servidor de e-mail
-smtp_server = 'smtp.seuservidoremail.com'  # Substitua pelo seu servidor SMTP
-smtp_port = 587  # Porta do servidor SMTP
-smtp_user = 'seu_email@dominio.com'  # Substitua pelo seu e-mail
-smtp_password = 'sua_senha'  # Substitua pela sua senha
+# Configurações do servidor SMTP do Hotmail/Outlook
+smtp_server = 'smtp.office365.com'
+smtp_port = 587
+smtp_user = 'seu_email@hotmail.com'  # Substitua pelo seu endereço de e-mail do Hotmail/Outlook
+smtp_password = 'sua_senha'  # Substitua pela sua senha de e-mail do Hotmail/Outlook
 
 # Carregar a planilha com os e-mails
 df = pd.read_excel('emails.xlsx')  # Substitua pelo caminho do seu arquivo Excel
@@ -24,10 +24,14 @@ def send_email(to_email, subject, body):
     msg['Subject'] = subject
     msg.attach(MIMEText(body, 'plain'))
     
-    with smtplib.SMTP(smtp_server, smtp_port) as server:
-        server.starttls()
-        server.login(smtp_user, smtp_password)
-        server.sendmail(smtp_user, to_email, msg.as_string())
+    try:
+        with smtplib.SMTP(smtp_server, smtp_port) as server:
+            server.starttls()
+            server.login(smtp_user, smtp_password)
+            server.sendmail(smtp_user, to_email, msg.as_string())
+        print(f'E-mail enviado para {to_email}')
+    except Exception as e:
+        print(f'Falha ao enviar e-mail para {to_email}: {e}')
 
 # Loop para enviar o e-mail para todos os destinatários na planilha
 subject = 'Assunto do seu e-mail'  # Substitua pelo assunto do seu e-mail
@@ -35,6 +39,5 @@ subject = 'Assunto do seu e-mail'  # Substitua pelo assunto do seu e-mail
 for index, row in df.iterrows():
     email = row['Email']  # Certifique-se de que a coluna na planilha se chama 'Email'
     send_email(email, subject, email_body)
-    print(f'E-mail enviado para {email}')
 
-print('Todos os e-mails foram enviados com sucesso!')
+print('Tentativa de envio de todos os e-mails concluída!')
