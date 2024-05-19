@@ -1,5 +1,6 @@
+import pandas as pd
 import boto3
-from botocore.exceptions import NoCredentialsError, PartialCredentialsError
+from botocore.exceptions import NoCredentialsError, PartialCredentialsError, ClientError
 
 # Configurações do Amazon SES
 AWS_REGION = "us-east-1"  # Substitua pela sua região AWS
@@ -38,7 +39,13 @@ def send_email(to_email, subject, body):
             Source=SENDER,
         )
     except (NoCredentialsError, PartialCredentialsError) as e:
-        print(f'Erro ao enviar e-mail: {e}')
+        print(f'Erro ao enviar e-mail (credenciais): {e}')
+        return False
+    except ClientError as e:
+        print(f'Erro ao enviar e-mail (client): {e}')
+        return False
+    except Exception as e:
+        print(f'Erro ao enviar e-mail (outro): {e}')
         return False
     return True
 
